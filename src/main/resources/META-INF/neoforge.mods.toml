@@ -1,0 +1,35 @@
+modLoader="javafml"
+loaderVersion="[2,)"
+license="MIT"
+issueTrackerURL="https://github.com/example/teamstatus/issues"
+showAsResourcePack=false
+
+[[mods]]
+modId="teamstatus"
+version="${file.jarVersion}"
+displayName="Team Status"
+authors="Your Name"
+description="""
+A mod that displays team members' status (health, hunger, and eating state) similar to Apex Legends.
+"""
+
+[[dependencies.teamstatus]]
+modId="neoforge"
+mandatory=true
+versionRange="[21.0.0-beta,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.teamstatus]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.21.1]"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.teamstatus]]
+modId="appleskin"
+mandatory=true
+versionRange="[3.0.9,)"
+ordering="NONE"
+side="CLIENT"
