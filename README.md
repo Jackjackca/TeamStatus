@@ -1,6 +1,9 @@
 # Team Status
 
-A Minecraft mod that displays all online teammates' real-time status (health, hunger, and interaction state) in an on-screen HUD panel, inspired by online games squad status display.
+A Minecraft mod that displays all online teammates' real-time status (health, hunger, and interaction state) in an on-screen HUD panel, inspired by online games squad status display, like it supposed to be.
+
+![Team Status](pics/pic1.png)
+<img src="pics/pic1.png" width="30%">
 
 Built for **Minecraft 1.21.1** on **NeoForge**.
 
