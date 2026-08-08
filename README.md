@@ -2,8 +2,7 @@
 
 A Minecraft mod that displays all online teammates' real-time status (health, hunger, and interaction state) in an on-screen HUD panel, inspired by online games squad status display, like it supposed to be.
 
-![Team Status](pics/pic1.png)
-<img src="pics/pic1.png" width="30%">
+![hud](https://raw.githubusercontent.com/Jackjackca/TeamStatus/main/pics/pic1.png)
 
 Built for **Minecraft 1.21.1** on **NeoForge**.
 
@@ -15,12 +14,20 @@ The panel automatically lists every online player and shows their live status. E
 
 - **Health Bar** — Vanilla-accurate heart icons with full fidelity: absorption hearts, hardcore-mode containers, poisoned/withered/frozen heart variants, regeneration bounce, low-health jitter, and hurt/heal blink animations.
 - **Hunger Bar** — Vanilla food icons with saturation and exhaustion overlays (powered by AppleSkin textures).
+  
+  ![hud](https://raw.githubusercontent.com/Jackjackca/TeamStatus/main/pics/pic4.png)
+  ![hud](https://raw.githubusercontent.com/Jackjackca/TeamStatus/main/pics/pic5.png)
+  ![hud](https://raw.githubusercontent.com/Jackjackca/TeamStatus/main/pics/pic6.png)
+
 - **Interaction Status** — A state-machine-driven item display that reflects what each teammate is doing in real time:
   - **Eating** — Item moves toward the mouth with vanilla-accurate exponential decay and bobbing, spawning food crumb particles.
   - **Mining** — Tool swings with vanilla's `sin(sqrt(progress) * PI)` damping curve. The target block texture is shown with a destroy-stage overlay and a color-coded progress bar. Block debris particles spawn as the block breaks.
   - **Attacking** — Weapon swings with the same vanilla attack curve. The target entity icon flashes and shakes on hit, with hit particles.
   - **Using** — Item pulses with a subtle scale animation.
-  - **Holding** — Static item display with a use-progress cooldown bar.
+  - **Holding** — Static item display with a use-progress cooldown bar. 
+
+  ![hud](https://raw.githubusercontent.com/Jackjackca/TeamStatus/main/pics/pic2.png)
+  ![hud](https://raw.githubusercontent.com/Jackjackca/TeamStatus/main/pics/pic3.png)
 
 ### Configuration
 
