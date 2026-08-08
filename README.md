@@ -10,7 +10,6 @@ Built for **Minecraft 1.21.1** on **NeoForge**.
 
 The panel automatically lists every online player and shows their live status. Each entry includes:
 
-- **3D Head Avatar** — Renders each teammate's actual player skin as a 3D rotating head cube. The head physically reacts to the player's look direction with inertia-based overshoot, and flashes red when taking damage or green when healing.
 - **Health Bar** — Vanilla-accurate heart icons with full fidelity: absorption hearts, hardcore-mode containers, poisoned/withered/frozen heart variants, regeneration bounce, low-health jitter, and hurt/heal blink animations.
 - **Hunger Bar** — Vanilla food icons with saturation and exhaustion overlays (powered by AppleSkin textures).
 - **Interaction Status** — A state-machine-driven item display that reflects what each teammate is doing in real time:
