@@ -1,0 +1,33 @@
+{
+  "teamstatus.configuration.title": "TeamStatus",
+  "teamstatus.configuration.section.teamstatus.client.toml": "TeamStatus",
+  "teamstatus.configuration.section.teamstatus.client.toml.title": "TeamStatus client settings",
+
+  "teamstatus.configuration.hud": "Team HUD",
+  "teamstatus.configuration.enabled": "Enable HUD",
+  "teamstatus.configuration.enabled.tooltip": "Show the team status overlay on the HUD.",
+
+  "teamstatus.configuration.showSelf": "Show own panel",
+  "teamstatus.configuration.showSelf.tooltip": "Show your own status panel pinned at the bottom of the stack. Your mining, eating and attack animations are derived locally, with no extra network traffic.",
+
+  "teamstatus.configuration.anchorXPercent": "Horizontal anchor (%)",
+  "teamstatus.configuration.anchorXPercent.tooltip": "Horizontal anchor as a percentage of the screen width. 0 = left edge, 100 = right edge. Panels stack upward.",
+
+  "teamstatus.configuration.anchorYPercent": "Vertical anchor (%)",
+  "teamstatus.configuration.anchorYPercent.tooltip": "Vertical anchor as a percentage of the screen height. 0 = top edge, 100 = bottom edge (default, bottom-left anchoring).",
+
+  "teamstatus.configuration.edgeInset": "Edge inset (px)",
+  "teamstatus.configuration.edgeInset.tooltip": "Fixed distance from the anchored screen edges, in GUI-scaled pixels. Default 10 keeps the panels 10 pixels away from the edges.",
+
+  "teamstatus.configuration.verticalGap": "Member vertical gap",
+  "teamstatus.configuration.verticalGap.tooltip": "Vertical gap between stacked teammate panels, in GUI-scaled pixels.",
+
+  "teamstatus.configuration.scale": "HUD scale",
+  "teamstatus.configuration.scale.tooltip": "Scale multiplier of the whole team status HUD.",
+
+  "teamstatus.configuration.showEffects": "Show status effects",
+  "teamstatus.configuration.showEffects.tooltip": "Show teammates' potion effect icons and remaining durations.",
+
+  "teamstatus.configuration.showHands": "Show held item",
+  "teamstatus.configuration.showHands.tooltip": "Show each teammate's main-hand item, including mining and attack animations."
+}

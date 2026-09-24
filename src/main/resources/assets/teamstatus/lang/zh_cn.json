@@ -1,0 +1,33 @@
+{
+  "teamstatus.configuration.title": "TeamStatus",
+  "teamstatus.configuration.section.teamstatus.client.toml": "TeamStatus",
+  "teamstatus.configuration.section.teamstatus.client.toml.title": "TeamStatus 客户端设置",
+
+  "teamstatus.configuration.hud": "队伍 HUD",
+  "teamstatus.configuration.enabled": "启用 HUD",
+  "teamstatus.configuration.enabled.tooltip": "在游戏画面上显示队伍状态悬浮层。",
+
+  "teamstatus.configuration.showSelf": "显示自己的面板",
+  "teamstatus.configuration.showSelf.tooltip": "在堆叠底部固定显示你自己的状态面板。自己的挖掘、进食与攻击动画均在本地推导，不产生额外网络流量。",
+
+  "teamstatus.configuration.anchorXPercent": "水平锚点（%）",
+  "teamstatus.configuration.anchorXPercent.tooltip": "以屏幕宽度百分比表示的水平锚点。0 = 左边缘，100 = 右边缘。队员面板向上堆叠。",
+
+  "teamstatus.configuration.anchorYPercent": "垂直锚点（%）",
+  "teamstatus.configuration.anchorYPercent.tooltip": "以屏幕高度百分比表示的垂直锚点。0 = 上边缘，100 = 下边缘（默认，左下角锚定）。",
+
+  "teamstatus.configuration.edgeInset": "边缘内缩（像素）",
+  "teamstatus.configuration.edgeInset.tooltip": "距所锚定屏幕边缘的固定距离（GUI 缩放像素）。默认 10，即面板距边缘 10 像素。",
+
+  "teamstatus.configuration.verticalGap": "成员垂直间距",
+  "teamstatus.configuration.verticalGap.tooltip": "上下堆叠的队员面板之间的垂直间距（GUI 缩放像素）。",
+
+  "teamstatus.configuration.scale": "HUD 缩放",
+  "teamstatus.configuration.scale.tooltip": "整个队伍状态 HUD 的缩放倍率。",
+
+  "teamstatus.configuration.showEffects": "显示状态效果",
+  "teamstatus.configuration.showEffects.tooltip": "显示队友的药水效果图标与剩余持续时间。",
+
+  "teamstatus.configuration.showHands": "显示手持物品",
+  "teamstatus.configuration.showHands.tooltip": "显示每位队友的主手物品，包括挖掘与攻击时的挥动动画。"
+}
