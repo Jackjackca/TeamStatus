@@ -95,11 +95,11 @@ All options are **client-side**. You can change them in-game via **Mods → Team
 ## Requirements / 运行要求
 
 - **Minecraft: Java Edition 1.21.1**
-- **NeoForge 21.1.250 or newer** (for Minecraft 1.21.1)
+- **NeoForge 21.1.150 or newer** (for Minecraft 1.21.1)
 - **Java 21**
 - Optional: **AppleSkin 2.5+** for saturation overlays and the exhaustion strip; the HUD works fully without it.
 - **Minecraft：Java 版 1.21.1**
-- **NeoForge 21.1.250 或更高版本**（适用于 Minecraft 1.21.1）
+- **NeoForge 21.1.150 或更高版本**（适用于 Minecraft 1.21.1）
 - **Java 21**
 - 可选：**AppleSkin 2.5+**，用于饱和度覆盖层与疲劳值条；不安装时 HUD 依然完整可用。
 
