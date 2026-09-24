@@ -112,11 +112,11 @@ public final class TeamStateCollector {
         }
         dirtyMembers.clear();
 
-        // With one online player there are no viewers for other people's panels; the self
-        // panel is synthesized client-side, so skip snapshot building entirely.
-        if (online.size() < 2) {
-            return;
-        }
+        // Nothing changed and no forced refresh: no snapshots at all (the solo steady state
+        // produces zero traffic — the self panel is synthesized client-side). A forced rebuild
+        // must NOT short-circuit here: when the last visible teammate logs out (or is hidden)
+        // the receiver now has an empty list and still needs an empty snapshot to drop the
+        // stale panel, even though fewer than two players remain online.
         if (!force && changed.isEmpty()) {
             return;
         }
@@ -143,7 +143,15 @@ public final class TeamStateCollector {
             }
 
             List<TeamMemberState> previous = lastSnapshots.get(receiverId);
-            if (force || previous == null || !previous.equals(snapshot)) {
+            // Send when there is content to show (deduplicated by equality), or when the new
+            // snapshot is empty but the client still holds a non-empty one — a logout or a
+            // hide command removed every visible member and the client needs the empty packet
+            // to clear its panels. An empty snapshot with no prior snapshot (pure solo play)
+            // sends nothing, preserving zero traffic for players who never had teammates.
+            boolean needsSend = !snapshot.isEmpty()
+                    ? previous == null || !previous.equals(snapshot)
+                    : previous != null && !previous.isEmpty();
+            if (needsSend) {
                 broadcaster.sendToPlayer(receiver, new TeamStatePacket(snapshot));
                 lastSnapshots.put(receiverId, snapshot);
             }

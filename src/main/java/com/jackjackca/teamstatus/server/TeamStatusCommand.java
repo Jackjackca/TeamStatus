@@ -1,7 +1,5 @@
 package com.jackjackca.teamstatus.server;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,7 +11,6 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
 
 /**
  * {@code /teamstatus} — per-player editing of the world-persistent hidden list.
@@ -50,26 +47,9 @@ public final class TeamStatusCommand {
     private static int hide(CommandContext<CommandSourceStack> ctx, TeamStateCollector collector)
             throws com.mojang.brigadier.exceptions.CommandSyntaxException {
         ServerPlayer self = ctx.getSource().getPlayerOrException();
-        // Explicit runtime guard: only players may be hidden. The players() argument already
-        // rejects non-player selectors at parse time; this keeps the invariant enforced even
-        // if the argument type is ever loosened.
-        Collection<? extends Entity> resolved =
-                EntityArgument.getOptionalEntities(ctx, ARG_TARGETS);
-        if (resolved.isEmpty()) {
-            ctx.getSource().sendFailure(Component.literal("No player was found."));
-            return 0;
-        }
-        List<ServerPlayer> targets = new ArrayList<>();
-        for (Entity entity : resolved) {
-            if (!(entity instanceof ServerPlayer player)) {
-                ctx.getSource().sendFailure(Component.literal(
-                        "Only players can be hidden from the team HUD."));
-                return 0;
-            }
-            if (!player.getUUID().equals(self.getUUID())) {
-                targets.add(player);
-            }
-        }
+        List<ServerPlayer> targets = EntityArgument.getPlayers(ctx, ARG_TARGETS).stream()
+                .filter(p -> !p.getUUID().equals(self.getUUID()))
+                .toList();
         if (targets.isEmpty()) {
             ctx.getSource().sendFailure(Component.literal("You cannot hide yourself."));
             return 0;
