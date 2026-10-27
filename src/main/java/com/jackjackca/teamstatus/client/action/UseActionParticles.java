@@ -8,16 +8,20 @@ import java.util.Map;
 import java.util.UUID;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
 /**
  * Client-only 2D "food crumbs / drink droplets" particles for the item-use (eat/drink)
  * action, structured exactly like {@link BlockBreakParticles}: small textured quads tinted
- * from the used item's model particle icon ({@code BakedModel#getParticleIcon}), emitted one
- * per chew tick while using and as a larger burst when the item is consumed.
+ * from the used item's model particle icon ({@code ItemStackRenderState#pickParticleIcon}),
+ * emitted one per chew tick while using and as a larger burst when the item is consumed.
  * <p>
  * Coordinates are relative to the rendered item slot's center (pixels, y-down); the visual
  * layer adds the on-screen center. Motion is the closed parabola
@@ -89,31 +93,30 @@ public final class UseActionParticles {
     }
 
     /** Renders crumbs around the item slot center. */
-    public void render(GuiGraphics gui, UUID memberId, float centerX, float centerY, float partialTick) {
+    public void render(GuiGraphicsExtractor gui, UUID memberId, float centerX, float centerY, float partialTick) {
         List<Crum> crumbs = particles.get(memberId);
         if (crumbs == null || crumbs.isEmpty()) {
             return;
         }
         var pose = gui.pose();
-        pose.pushPose();
+        pose.pushMatrix();
         // Sub-pixel placement via floating pose translation (same approach as mining debris)
         // keeps the motion smooth at high refresh rates.
-        pose.translate(centerX, centerY, 200.0F);
+        pose.translate(centerX, centerY);
         for (Crum crum : crumbs) {
             float t = crum.age + partialTick;
             float x = crum.x0 + crum.vx * t;
             float y = crum.y0 + crum.vy * t + 0.5F * GRAVITY * t * t;
             float remaining = crum.life - t;
             float alpha = Math.max(0.0F, Math.min(1.0F, remaining / 4.0F));
-            gui.setColor(1.0F, 1.0F, 1.0F, alpha);
-            pose.pushPose();
-            pose.translate(x, y, 0.0F);
-            gui.blit(0, 0, 0, PARTICLE_SIZE, PARTICLE_SIZE, crum.sprite);
-            pose.popPose();
+            int color = ((int) (alpha * 255.0F) << 24) | 0x00FFFFFF;
+            pose.pushMatrix();
+            pose.translate(x, y);
+            gui.blitSprite(RenderPipelines.GUI_TEXTURED, crum.sprite,
+                    0, 0, PARTICLE_SIZE, PARTICLE_SIZE, color);
+            pose.popMatrix();
         }
-        gui.setColor(1.0F, 1.0F, 1.0F, 1.0F);
-        pose.popPose();
-        gui.flush();
+        pose.popMatrix();
     }
 
     public void retainOnly(Iterable<UUID> presentMemberIds) {
@@ -131,7 +134,11 @@ public final class UseActionParticles {
         if (mc.level == null || stack.isEmpty()) {
             return null;
         }
-        return mc.getItemRenderer().getModel(stack, mc.level, null, 0).getParticleIcon();
+        ItemStackRenderState renderState = new ItemStackRenderState();
+        mc.getItemModelResolver().updateForTopItem(renderState, stack,
+                ItemDisplayContext.NONE, mc.level, null, 0);
+        Material.Baked baked = renderState.pickParticleMaterial(RandomSource.create());
+        return baked != null ? baked.sprite() : null;
     }
 
     private static final class Crum {

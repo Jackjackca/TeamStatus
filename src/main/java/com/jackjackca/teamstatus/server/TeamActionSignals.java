@@ -68,7 +68,7 @@ public final class TeamActionSignals {
         AttackActionPacket packet;
         if (victim instanceof Player playerVictim) {
             packet = new AttackActionPacket(attacker.getUUID(), AttackActionPacket.TargetKind.PLAYER,
-                    playerVictim.getUUID(), playerVictim.getGameProfile().getName(), null);
+                    playerVictim.getUUID(), playerVictim.getGameProfile().name(), null);
         } else {
             packet = new AttackActionPacket(attacker.getUUID(), AttackActionPacket.TargetKind.MOB,
                     null, null, BuiltInRegistries.ENTITY_TYPE.getKey(victim.getType()));
@@ -89,7 +89,7 @@ public final class TeamActionSignals {
 
     /** Sends an edge packet to every online player that sees the actor, except the actor. */
     private void dispatch(ServerPlayer actor, CustomPacketPayload packet) {
-        MinecraftServer server = actor.server;
+        MinecraftServer server = actor.level().getServer();
         DisplayListStore displayLists = DisplayListStore.get(server);
         for (ServerPlayer receiver : server.getPlayerList().getPlayers()) {
             if (!receiver.getUUID().equals(actor.getUUID())

@@ -10,11 +10,11 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Server &rarr; Client edge-triggered item-use signal for one party member (eating, drinking
- * and other fixed-duration {@code UseAnim} actions). Vanilla only syncs the "is using item"
+ * and other fixed-duration {@code ItemUseAnimation} actions). Vanilla only syncs the "is using item"
  * entity flag, not the item or its remaining ticks, so the HUD predicts progress locally:
  * START carries the used stack and the total duration in ticks, receivers integrate elapsed
  * ticks and interpolate with the frame's partial tick; STOP (interrupted) and FINISH
@@ -33,7 +33,7 @@ public record ItemUseActionPacket(UUID memberId, Action action, ItemState item, 
     }
 
     public static final Type<ItemUseActionPacket> TYPE =
-            new Type<>(ResourceLocation.fromNamespaceAndPath(TeamStatus.MODID, "item_use_action"));
+            new Type<>(Identifier.fromNamespaceAndPath(TeamStatus.MODID, "item_use_action"));
 
     public static final StreamCodec<ByteBuf, Action> ACTION_STREAM_CODEC =
             ByteBufCodecs.VAR_INT.map(i -> Action.values()[i], Enum::ordinal);

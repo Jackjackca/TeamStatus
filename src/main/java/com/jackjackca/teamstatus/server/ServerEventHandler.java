@@ -6,7 +6,7 @@ import com.jackjackca.teamstatus.common.network.MiningActionPacket;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.ItemUseAnimation;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
@@ -122,8 +122,8 @@ public final class ServerEventHandler {
     }
 
     private static boolean isConsumable(net.minecraft.world.item.ItemStack stack) {
-        UseAnim anim = stack.getUseAnimation();
-        return anim == UseAnim.EAT || anim == UseAnim.DRINK;
+        ItemUseAnimation anim = stack.getUseAnimation();
+        return anim == ItemUseAnimation.EAT || ItemUseAnimation.DRINK == anim;
     }
 
     @SubscribeEvent

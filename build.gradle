@@ -39,20 +39,22 @@ tasks.named('jar', Jar).configure {
     archiveVersion = "${mod_version}+mc${minecraft_version}"
 }
 
-// Mojang ships Java 21 to end users in 1.21.1, so mods should target Java 21.
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+// Minecraft 26.1+ (including 26.2) uses Java 25.
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
 neoForge {
     // Specify the version of NeoForge to use.
     version = project.neo_version
 
-    parchment {
-        mappingsVersion = project.parchment_mappings_version
-        minecraftVersion = project.parchment_minecraft_version
-    }
+    // Parchment is no longer strictly required since Mojang removed obfuscation in 26.1.
+    // Uncomment below if you want additional javadoc support.
+    // parchment {
+    //     mappingsVersion = project.parchment_mappings_version
+    //     minecraftVersion = project.parchment_minecraft_version
+    // }
 
-    // This line is optional. Access Transformers are automatically detected
-    // accessTransformers = project.files('src/main/resources/META-INF/accesstransformer.cfg')
+    // Access Transformers are automatically detected from this conventional path.
+    accessTransformers = project.files('src/main/resources/META-INF/accesstransformer.cfg')
 
     // Default run configurations.
     // These can be tweaked, removed, or duplicated as needed.
@@ -77,8 +79,8 @@ neoForge {
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
         }
 
-        data {
-            data()
+        serverData {
+            serverData()
             // example of overriding the workingDirectory set in configureEach above, uncomment if you want to use it
             // gameDirectory = project.file('run-data')
 

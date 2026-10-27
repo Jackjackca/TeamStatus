@@ -5,7 +5,7 @@ import com.jackjackca.teamstatus.client.render.HitIconRenderer;
 import com.jackjackca.teamstatus.client.render.ParticleRenderer;
 
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 /**
  * Composition for one member panel: rebuilds the cached descriptor lists at gui-tick
@@ -88,7 +88,7 @@ public final class TeamMemberVisual {
     }
 
     /** Paints the panel at {@code topY}; call {@link #measure} first (same frame). */
-    public static void render(GuiGraphics gui, int topY, MemberVisualContext context) {
+    public static void render(GuiGraphicsExtractor gui, int topY, MemberVisualContext context) {
         Font font = context.font();
         MemberPanelCache.Entry cache = MemberPanelCache.get(context.member().id());
         if (MemberPanelCache.isStale(cache, context, PANEL_WIDTH)) {
@@ -100,7 +100,7 @@ public final class TeamMemberVisual {
         String name = cache.trimmedName;
         int nameColor = !context.member().online() ? COLOR_OFFLINE
                 : !context.member().alive() ? COLOR_DEAD : COLOR_NAME;
-        gui.drawString(font, name, NAME_X, y, nameColor, true);
+        gui.text(font, name, NAME_X, y, nameColor, true);
         y += NAME_ROW_HEIGHT;
 
         int healthRowY = y;

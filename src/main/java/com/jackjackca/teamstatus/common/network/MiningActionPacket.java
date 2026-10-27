@@ -11,7 +11,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -38,7 +38,7 @@ public record MiningActionPacket(UUID memberId, Action action, BlockPos pos, flo
     }
 
     public static final Type<MiningActionPacket> TYPE =
-            new Type<>(ResourceLocation.fromNamespaceAndPath(TeamStatus.MODID, "mining_action"));
+            new Type<>(Identifier.fromNamespaceAndPath(TeamStatus.MODID, "mining_action"));
 
     public static final StreamCodec<ByteBuf, Action> ACTION_STREAM_CODEC =
             ByteBufCodecs.VAR_INT.map(i -> Action.values()[i], Enum::ordinal);

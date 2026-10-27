@@ -1,29 +1,24 @@
 package com.jackjackca.teamstatus.client.render;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.SheetedDecalTextureGenerator;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.VertexMultiConsumer;
-import com.mojang.math.Axis;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.model.ModelBakery;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.client.model.data.ModelData;
+
+import com.jackjackca.teamstatus.client.render.pip.BlockInGuiState;
 
 /**
  * Renders a true 3D block inside the 2D HUD (isometric projection) for the mining target.
  * <p>
+ * Since the 1.21.5 GUI rework {@code GuiGraphics} no longer exposes an immediate
+ * {@code MultiBufferSource}: 3D GUI content is submitted as picture-in-picture render states
+ * and drawn into off-screen textures by registered PIP renderers. The on-screen bounds are
+ * transformed through the current 2D GUI pose because PIP states use absolute screen
+ * coordinates rather than inheriting the GUI matrix.
+ * <p>
  * The crack overlay uses the exact vanilla technique from
- * {@code LevelRenderer#renderBlockDamage}: a {@link SheetedDecalTextureGenerator} wraps the
- * {@link ModelBakery#DESTROY_TYPES} buffer and is joined to the block's own consumers through
- * {@link VertexMultiConsumer}, so the destroy texture is projected onto every face of the
- * model (all three faces visible to the user) in a single draw instead of a coplanar second
- * pass that depth-fights.
+ * {@code LevelRenderer#renderBlockDamage}: a {@code SheetedDecalTextureGenerator} wraps the
+ * destroy-stage buffer and is joined to the block's consumers through {@code VertexMultiConsumer},
+ * implemented in {@link com.jackjackca.teamstatus.client.render.pip.BlockInGuiRenderer}.
  */
 public final class BlockTargetRenderer {
 
@@ -38,40 +33,15 @@ public final class BlockTargetRenderer {
      * @param centerY    cube center Y
      * @param crackStage 0..9 vanilla destroy stage; negative renders no crack overlay
      */
-    public static void draw(GuiGraphics gui, BlockState state, float centerX, float centerY, int crackStage) {
-        Minecraft minecraft = Minecraft.getInstance();
-        MultiBufferSource.BufferSource buffer = gui.bufferSource();
-        PoseStack pose = gui.pose();
-
-        pose.pushPose();
-        pose.translate(centerX, centerY, 0.0F);
-        // Y flip: GUI y points down while block models assume y up. After that flip, a
-        // POSITIVE 30° X tilt points the top face toward the viewer and projects it above
-        // the center (a negative tilt would show the bottom instead); 45° Y then reveals
-        // the left and right side faces — the classic top-down isometric triad.
-        pose.scale(SIZE, -SIZE, SIZE);
-        pose.mulPose(Axis.XP.rotationDegrees(30.0F));
-        pose.mulPose(Axis.YP.rotationDegrees(45.0F));
-        pose.translate(-0.5F, -0.5F, -0.5F);
-
-        MultiBufferSource source = buffer;
-        if (crackStage >= 0) {
-            int stage = Math.max(0, Math.min(9, crackStage));
-            VertexConsumer decal = new SheetedDecalTextureGenerator(
-                    buffer.getBuffer(ModelBakery.DESTROY_TYPES.get(stage)), pose.last(), 1.0F);
-            // Project the destroy decal onto every face that supports crumbling, alongside
-            // the block's own texture consumer.
-            source = renderType -> {
-                VertexConsumer normal = buffer.getBuffer(renderType);
-                return renderType.affectsCrumbling() ? VertexMultiConsumer.create(decal, normal) : normal;
-            };
-        }
-
-        minecraft.getBlockRenderer().renderSingleBlock(state, pose, source,
-                LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, ModelData.EMPTY, null);
-
-        pose.popPose();
-        // Ends the solid buffers and the destroy-stage decal buffer together.
-        gui.flush();
+    public static void draw(GuiGraphicsExtractor gui, BlockState state, float centerX, float centerY, int crackStage) {
+        int x = Math.round(centerX - SIZE / 2.0F);
+        int y = Math.round(centerY - SIZE / 2.0F);
+        int size = Math.round(SIZE);
+        ScreenRectangle bounds = new ScreenRectangle(x, y, size, size)
+                .transformAxisAligned(gui.pose());
+        gui.submitPictureInPictureRenderState(new BlockInGuiState(
+                state, crackStage,
+                bounds.left(), bounds.top(), bounds.right(), bounds.bottom(),
+                gui.peekScissorStack()));
     }
 }

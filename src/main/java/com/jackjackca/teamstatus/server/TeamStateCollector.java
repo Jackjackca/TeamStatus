@@ -170,7 +170,7 @@ public final class TeamStateCollector {
         HungerState hunger = new HungerState(
                 player.getFoodData().getFoodLevel(),
                 quantize(player.getFoodData().getSaturationLevel(), SATURATION_STEP),
-                quantize(player.getFoodData().getExhaustionLevel(), EXHAUSTION_STEP));
+                quantize(player.getFoodData().exhaustionLevel, EXHAUSTION_STEP));
         VitalsState vitals = new VitalsState(
                 player.getHealth(),
                 player.getMaxHealth(),
@@ -186,7 +186,7 @@ public final class TeamStateCollector {
 
         EquipmentState equipment = new EquipmentState(ItemState.of(player.getMainHandItem()));
 
-        return TeamMemberState.online(player.getUUID(), player.getGameProfile().getName(),
+        return TeamMemberState.online(player.getUUID(), player.getGameProfile().name(),
                 !player.isDeadOrDying(), vitals, effects, equipment);
     }
 

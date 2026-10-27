@@ -9,7 +9,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Server -> Client payload carrying the full (but delta-gated and throttled) team snapshot
@@ -20,7 +20,7 @@ import net.minecraft.resources.ResourceLocation;
 public record TeamStatePacket(List<TeamMemberState> members) implements CustomPacketPayload {
 
     public static final Type<TeamStatePacket> TYPE =
-            new Type<>(ResourceLocation.fromNamespaceAndPath(TeamStatus.MODID, "team_state"));
+            new Type<>(Identifier.fromNamespaceAndPath(TeamStatus.MODID, "team_state"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, List<TeamMemberState>> MEMBER_LIST_STREAM_CODEC =
             TeamMemberState.STREAM_CODEC.apply(ByteBufCodecs.list());

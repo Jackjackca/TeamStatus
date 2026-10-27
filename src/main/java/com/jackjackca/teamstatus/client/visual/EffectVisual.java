@@ -9,11 +9,12 @@ import com.jackjackca.teamstatus.client.render.EffectRenderer;
 import com.jackjackca.teamstatus.client.render.EffectRenderer.EffectEntry;
 import com.jackjackca.teamstatus.common.state.EffectState;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.Hud;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.effect.MobEffect;
 
 /**
@@ -32,7 +33,6 @@ public final class EffectVisual {
         if (!enabled(context)) {
             return List.of();
         }
-        Minecraft minecraft = Minecraft.getInstance();
         List<EffectEntry> entries = new ArrayList<>();
         for (EffectState effect : context.member().effects()) {
             // Vanilla hides effects whose showIcon flag is false from HUD/inventory displays.
@@ -40,15 +40,15 @@ public final class EffectVisual {
                 continue;
             }
             Optional<Holder.Reference<MobEffect>> holder =
-                    BuiltInRegistries.MOB_EFFECT.getHolder(effect.effectId());
+                    BuiltInRegistries.MOB_EFFECT.get(effect.effectId());
             holder.ifPresent(reference -> entries.add(new EffectEntry(
-                    minecraft.getMobEffectTextures().get(reference),
+                    Hud.getMobEffectSprite(reference),
                     formatLabel(effect), effect.ambient())));
         }
         return entries;
     }
 
-    public static void render(GuiGraphics gui, int x, int y, int width, List<EffectEntry> entries) {
+    public static void render(GuiGraphicsExtractor gui, int x, int y, int width, List<EffectEntry> entries) {
         if (!entries.isEmpty()) {
             EffectRenderer.draw(gui, x, y, width, entries);
         }

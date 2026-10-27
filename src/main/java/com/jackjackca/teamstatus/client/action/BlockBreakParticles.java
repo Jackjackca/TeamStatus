@@ -8,17 +8,21 @@ import java.util.Map;
 import java.util.UUID;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.client.model.data.ModelData;
 
 /**
  * Client-only 2D "block debris" particles for the mining target. Vanilla break particles are
  * world particles that cross-dimension teammates never receive, so the HUD fakes the same
  * look with small textured quads using the block's particle sprite
- * ({@code BakedModel#getParticleIcon}).
+ * ({@code BlockStateModel#particleIcon}).
  * <p>
  * Coordinates are relative to the rendered target's center (pixels, y-down); the visual
  * layer adds the on-screen center. Motion is the closed parabola
@@ -89,19 +93,18 @@ public final class BlockBreakParticles {
     }
 
     /** Renders debris around the target center. */
-    public void render(GuiGraphics gui, UUID memberId, float centerX, float centerY, float partialTick) {
+    public void render(GuiGraphicsExtractor gui, UUID memberId, float centerX, float centerY, float partialTick) {
         List<Chip> chips = particles.get(memberId);
         if (chips == null || chips.isEmpty()) {
             return;
         }
-        // Above the 3D cube (writes real depth) and the item: particles are 2D sprites at a
-        // fixed high z so the cube cannot occlude them.
+        // Particles are 2D sprites submitted in frame order after the 3D cube PIP element.
         var pose = gui.pose();
-        pose.pushPose();
+        pose.pushMatrix();
         // The sprite blit only accepts integer x/y; do the sub-pixel placement with a
         // floating pose translation so motion stays smooth at high refresh rates instead
         // of snapping to whole pixels (which read as a 20 Hz stutter).
-        pose.translate(centerX, centerY, 200.0F);
+        pose.translate(centerX, centerY);
         for (Chip chip : chips) {
             float t = chip.age + partialTick;
             float x = chip.x0 + chip.vx * t;
@@ -109,15 +112,14 @@ public final class BlockBreakParticles {
             // Continuous fade over the last 4 ticks of life.
             float remaining = chip.life - t;
             float alpha = Math.max(0.0F, Math.min(1.0F, remaining / 4.0F));
-            gui.setColor(1.0F, 1.0F, 1.0F, alpha);
-            pose.pushPose();
-            pose.translate(x, y, 0.0F);
-            gui.blit(0, 0, 0, PARTICLE_SIZE, PARTICLE_SIZE, chip.sprite);
-            pose.popPose();
+            int color = ((int) (alpha * 255.0F) << 24) | 0x00FFFFFF;
+            pose.pushMatrix();
+            pose.translate(x, y);
+            gui.blitSprite(RenderPipelines.GUI_TEXTURED, chip.sprite,
+                    0, 0, PARTICLE_SIZE, PARTICLE_SIZE, color);
+            pose.popMatrix();
         }
-        gui.setColor(1.0F, 1.0F, 1.0F, 1.0F);
-        pose.popPose();
-        gui.flush();
+        pose.popMatrix();
     }
 
     public void retainOnly(Iterable<UUID> presentMemberIds) {
@@ -135,8 +137,12 @@ public final class BlockBreakParticles {
         if (mc.level == null) {
             return null;
         }
-        return mc.getBlockRenderer().getBlockModelShaper().getBlockModel(state)
-                .getParticleIcon(ModelData.EMPTY);
+        ItemStack stack = new ItemStack(state.getBlock().asItem());
+        ItemStackRenderState renderState = new ItemStackRenderState();
+        mc.getItemModelResolver().updateForTopItem(renderState, stack,
+                ItemDisplayContext.NONE, mc.level, null, 0);
+        Material.Baked baked = renderState.pickParticleMaterial(RandomSource.create());
+        return baked != null ? baked.sprite() : null;
     }
 
     private static final class Chip {

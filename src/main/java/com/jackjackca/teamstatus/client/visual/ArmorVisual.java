@@ -7,7 +7,7 @@ import com.jackjackca.teamstatus.client.render.ArmorRenderer;
 import com.jackjackca.teamstatus.client.render.ArmorRenderer.ArmorIcon;
 import com.jackjackca.teamstatus.client.render.ArmorRenderer.Kind;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 /**
  * State &rarr; armor icon descriptors. When the member has any armor this produces all 10
@@ -43,7 +43,7 @@ public final class ArmorVisual {
         return icons;
     }
 
-    public static void render(GuiGraphics gui, int x, int y, List<ArmorIcon> icons) {
+    public static void render(GuiGraphicsExtractor gui, int x, int y, List<ArmorIcon> icons) {
         if (!icons.isEmpty()) {
             ArmorRenderer.draw(gui, x, y, icons);
         }

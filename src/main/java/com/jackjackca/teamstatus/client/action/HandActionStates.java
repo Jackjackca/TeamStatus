@@ -15,7 +15,7 @@ import com.jackjackca.teamstatus.common.network.MiningActionPacket;
 import com.jackjackca.teamstatus.common.state.ItemState;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -61,7 +61,7 @@ public final class HandActionStates {
         @Nullable public AttackActionPacket.TargetKind hitKind;
         @Nullable public UUID hitId;
         @Nullable public String hitName;
-        @Nullable public ResourceLocation hitType;
+        @Nullable public Identifier hitType;
         public float hitFlash;
     }
 
@@ -79,7 +79,7 @@ public final class HandActionStates {
         private AttackActionPacket.TargetKind hitKind;
         private UUID hitId;
         private String hitName;
-        private ResourceLocation hitType;
+        private Identifier hitType;
         private float hitFlash;
 
         // Item use (eating/drinking) prediction.

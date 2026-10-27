@@ -4,12 +4,13 @@ import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.resources.Identifier;
 
 /**
  * Pure paint layer for status effects. Receives resolved {@link EffectEntry} descriptors
- * (icon sprite + label text produced by the upstream visual layer) and owns the static row
+ * (icon sprite id + label text produced by the upstream visual layer) and owns the static row
  * wrapping layout: icon, label, gap, wrapping at the panel width.
  */
 public final class EffectRenderer {
@@ -27,7 +28,7 @@ public final class EffectRenderer {
 
     /** One resolved effect icon with its duration/amplifier label. Beacon/ambient effects
      *  carry a translucent icon, mirroring the vanilla inventory effect rendering. */
-    public record EffectEntry(TextureAtlasSprite sprite, String label, boolean ambient) {
+    public record EffectEntry(Identifier sprite, String label, boolean ambient) {
     }
 
     private EffectRenderer() {
@@ -51,7 +52,7 @@ public final class EffectRenderer {
         return entries.isEmpty() ? 0 : rows(entries, width, font) * ROW_HEIGHT;
     }
 
-    public static void draw(GuiGraphics gui, int x, int y, int width, List<EffectEntry> entries) {
+    public static void draw(GuiGraphicsExtractor gui, int x, int y, int width, List<EffectEntry> entries) {
         Font font = Minecraft.getInstance().font;
         int cursorX = 0;
         int row = 0;
@@ -64,11 +65,12 @@ public final class EffectRenderer {
 
             int iconX = x + cursorX;
             int iconY = y + row * ROW_HEIGHT;
-            float iconAlpha = entry.ambient() ? AMBIENT_ALPHA : 1.0F;
-            gui.blit(iconX, iconY, 0, ICON_SIZE, ICON_SIZE, entry.sprite(),
-                    1.0F, 1.0F, 1.0F, iconAlpha);
-            int textAlpha = entry.ambient() ? (int) (AMBIENT_ALPHA * 255.0F) << 24 : TEXT_COLOR;
-            gui.drawString(font, entry.label(), iconX + ICON_SIZE + LABEL_GAP,
+            int alpha = entry.ambient() ? (int) (AMBIENT_ALPHA * 255.0F) : 255;
+            int tintColor = (alpha << 24) | 0x00FFFFFF;
+            gui.blitSprite(RenderPipelines.GUI_TEXTURED, entry.sprite(),
+                    iconX, iconY, ICON_SIZE, ICON_SIZE, tintColor);
+            int textAlpha = entry.ambient() ? alpha << 24 : TEXT_COLOR;
+            gui.text(font, entry.label(), iconX + ICON_SIZE + LABEL_GAP,
                     iconY + LABEL_Y_INSET, textAlpha, true);
 
             cursorX += entryWidth + ENTRY_GAP;

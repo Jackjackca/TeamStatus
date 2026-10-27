@@ -8,9 +8,9 @@ import com.jackjackca.teamstatus.client.render.FoodRenderer;
 import com.jackjackca.teamstatus.client.render.FoodRenderer.Drumstick;
 import com.jackjackca.teamstatus.client.render.FoodRenderer.Fill;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffects;
 
@@ -20,7 +20,7 @@ import net.minecraft.world.effect.MobEffects;
  */
 public final class FoodVisual {
 
-    private static final ResourceLocation HUNGER_ID =
+    private static final Identifier HUNGER_ID =
             BuiltInRegistries.MOB_EFFECT.getKey(MobEffects.HUNGER.value());
 
     private static final int MAX_FOOD = 20;
@@ -72,7 +72,7 @@ public final class FoodVisual {
         return drumsticks;
     }
 
-    public static void render(GuiGraphics gui, int x, int y, List<Drumstick> drumsticks, int exhaustionWidth) {
+    public static void render(GuiGraphicsExtractor gui, int x, int y, List<Drumstick> drumsticks, int exhaustionWidth) {
         FoodRenderer.draw(gui, x, y, drumsticks, exhaustionWidth);
     }
 

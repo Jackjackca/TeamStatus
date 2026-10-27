@@ -1,9 +1,8 @@
 package com.jackjackca.teamstatus.client.integration;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.resources.Identifier;
 import net.neoforged.fml.ModList;
 
 /**
@@ -19,13 +18,14 @@ public final class AppleSkinIntegration {
 
     public static final String APPLESKIN_MOD_ID = "appleskin";
 
-    private static final ResourceLocation MOD_ICONS =
-            ResourceLocation.fromNamespaceAndPath(APPLESKIN_MOD_ID, "textures/icons.png");
+    private static final Identifier MOD_ICONS =
+            Identifier.fromNamespaceAndPath(APPLESKIN_MOD_ID, "textures/icons.png");
 
     private static final int ICON_SIZE = 9;
     private static final int EXHAUSTION_V = 2 * ICON_SIZE;
     private static final int EXHAUSTION_STRIP_WIDTH = 81;
     private static final float EXHAUSTION_ALPHA = 0.75F;
+    private static final int TEXTURE_SIZE = 256;
 
     private AppleSkinIntegration() {
     }
@@ -38,11 +38,12 @@ public final class AppleSkinIntegration {
      * Paints one saturation drumstick icon at level 0..3 (u = level * 9 on the v=0 row).
      * Level 0 paints nothing.
      */
-    public static void paintSaturationIcon(GuiGraphics gui, int x, int y, int level) {
+    public static void paintSaturationIcon(GuiGraphicsExtractor gui, int x, int y, int level) {
         if (!isActive() || level <= 0) {
             return;
         }
-        gui.blit(MOD_ICONS, x, y, level * ICON_SIZE, 0, ICON_SIZE, ICON_SIZE);
+        gui.blit(RenderPipelines.GUI_TEXTURED, MOD_ICONS, x, y,
+                level * ICON_SIZE, 0, ICON_SIZE, ICON_SIZE, TEXTURE_SIZE, TEXTURE_SIZE);
     }
 
     /**
@@ -50,16 +51,15 @@ public final class AppleSkinIntegration {
      *
      * @param width strip width in pixels (0..81), computed by the visual layer
      */
-    public static void paintExhaustion(GuiGraphics gui, int rowRightEdge, int y, int width) {
+    public static void paintExhaustion(GuiGraphicsExtractor gui, int rowRightEdge, int y, int width) {
         if (!isActive() || width <= 0) {
             return;
         }
-        gui.setColor(1.0F, 1.0F, 1.0F, EXHAUSTION_ALPHA);
-        RenderSystem.enableBlend();
-        gui.blit(MOD_ICONS, rowRightEdge - width, y, EXHAUSTION_STRIP_WIDTH - width, EXHAUSTION_V,
-                width, ICON_SIZE);
-        RenderSystem.disableBlend();
-        gui.setColor(1.0F, 1.0F, 1.0F, 1.0F);
+        int alpha = (int) (EXHAUSTION_ALPHA * 255.0F) << 24;
+        int tintColor = alpha | 0x00FFFFFF;
+        gui.blit(RenderPipelines.GUI_TEXTURED, MOD_ICONS, rowRightEdge - width, y,
+                EXHAUSTION_STRIP_WIDTH - width, EXHAUSTION_V,
+                width, ICON_SIZE, TEXTURE_SIZE, TEXTURE_SIZE, tintColor);
     }
 
     /** Full width of the exhaustion strip texture region. */

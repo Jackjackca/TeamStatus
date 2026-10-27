@@ -9,7 +9,7 @@ import com.jackjackca.teamstatus.TeamStatus;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Server &rarr; Client edge-triggered attack signal: a party member (the attacker) just hurt
@@ -22,7 +22,7 @@ import net.minecraft.resources.ResourceLocation;
  * the one-shot swing and refreshes (and accumulates) the red hit flash per receipt.
  */
 public record AttackActionPacket(UUID memberId, TargetKind kind, @Nullable UUID targetId,
-                                 @Nullable String targetName, @Nullable ResourceLocation entityType)
+                                 @Nullable String targetName, @Nullable Identifier entityType)
         implements CustomPacketPayload {
 
     public enum TargetKind {
@@ -30,7 +30,7 @@ public record AttackActionPacket(UUID memberId, TargetKind kind, @Nullable UUID 
     }
 
     public static final Type<AttackActionPacket> TYPE =
-            new Type<>(ResourceLocation.fromNamespaceAndPath(TeamStatus.MODID, "attack_action"));
+            new Type<>(Identifier.fromNamespaceAndPath(TeamStatus.MODID, "attack_action"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, AttackActionPacket> STREAM_CODEC =
             StreamCodec.of(AttackActionPacket::write, AttackActionPacket::read);
@@ -48,7 +48,7 @@ public record AttackActionPacket(UUID memberId, TargetKind kind, @Nullable UUID 
         }
         buf.writeBoolean(packet.entityType() != null);
         if (packet.entityType() != null) {
-            buf.writeResourceLocation(packet.entityType());
+            buf.writeIdentifier(packet.entityType());
         }
     }
 
@@ -57,7 +57,7 @@ public record AttackActionPacket(UUID memberId, TargetKind kind, @Nullable UUID 
         TargetKind kind = buf.readEnum(TargetKind.class);
         UUID targetId = buf.readBoolean() ? buf.readUUID() : null;
         String targetName = buf.readBoolean() ? buf.readUtf() : null;
-        ResourceLocation entityType = buf.readBoolean() ? buf.readResourceLocation() : null;
+        Identifier entityType = buf.readBoolean() ? buf.readIdentifier() : null;
         return new AttackActionPacket(memberId, kind, targetId, targetName, entityType);
     }
 

@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 /**
  * Very small floating-text "particle" system: health loss/healing numbers float up and fade
@@ -45,7 +45,7 @@ public final class ParticleRenderer {
         }
     }
 
-    public void render(GuiGraphics guiGraphics, UUID memberId, int centerX, int y, float partialTick) {
+    public void render(GuiGraphicsExtractor guiGraphics, UUID memberId, int centerX, int y, float partialTick) {
         List<FloatingText> texts = particles.get(memberId);
         if (texts == null || texts.isEmpty()) {
             return;
@@ -59,8 +59,9 @@ public final class ParticleRenderer {
             alpha = Math.max(0, Math.min(255, alpha));
             int colorWithAlpha = (alpha << 24) | (text.color & 0x00FFFFFF);
             int textWidth = font.width(text.text);
-            float renderY = y - age * 0.6F - stack * 9.0F;
-            guiGraphics.drawString(font, text.text, centerX - textWidth / 2.0F, renderY, colorWithAlpha, true);
+            int renderX = Math.round(centerX - textWidth / 2.0F);
+            int renderY = Math.round(y - age * 0.6F - stack * 9.0F);
+            guiGraphics.text(font, text.text, renderX, renderY, colorWithAlpha, true);
             stack++;
         }
     }

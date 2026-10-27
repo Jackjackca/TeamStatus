@@ -2,8 +2,9 @@ package com.jackjackca.teamstatus.client.render;
 
 import java.util.List;
 
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.resources.Identifier;
 
 /**
  * Pure paint layer for the armor row. Receives a resolved list of armor icons (one per
@@ -17,12 +18,12 @@ public final class ArmorRenderer {
     public static final int ICON_STEP = 8;
     public static final int ROW_HEIGHT = 9;
 
-    private static final ResourceLocation EMPTY_SPRITE =
-            ResourceLocation.withDefaultNamespace("hud/armor_empty");
-    private static final ResourceLocation HALF_SPRITE =
-            ResourceLocation.withDefaultNamespace("hud/armor_half");
-    private static final ResourceLocation FULL_SPRITE =
-            ResourceLocation.withDefaultNamespace("hud/armor_full");
+    private static final Identifier EMPTY_SPRITE =
+            Identifier.withDefaultNamespace("hud/armor_empty");
+    private static final Identifier HALF_SPRITE =
+            Identifier.withDefaultNamespace("hud/armor_half");
+    private static final Identifier FULL_SPRITE =
+            Identifier.withDefaultNamespace("hud/armor_full");
 
     /** One armor slot: empty container, half or full armor point. */
     public enum Kind {
@@ -30,9 +31,9 @@ public final class ArmorRenderer {
         HALF(HALF_SPRITE),
         FULL(FULL_SPRITE);
 
-        private final ResourceLocation sprite;
+        private final Identifier sprite;
 
-        Kind(ResourceLocation sprite) {
+        Kind(Identifier sprite) {
             this.sprite = sprite;
         }
     }
@@ -43,10 +44,11 @@ public final class ArmorRenderer {
     private ArmorRenderer() {
     }
 
-    public static void draw(GuiGraphics gui, int x, int y, List<ArmorIcon> icons) {
+    public static void draw(GuiGraphicsExtractor gui, int x, int y, List<ArmorIcon> icons) {
         for (int i = 0; i < icons.size(); i++) {
             int iconX = x + i * ICON_STEP;
-            gui.blitSprite(icons.get(i).kind().sprite, iconX, y, ICON_SIZE, ICON_SIZE);
+            gui.blitSprite(RenderPipelines.GUI_TEXTURED, icons.get(i).kind().sprite,
+                    iconX, y, ICON_SIZE, ICON_SIZE);
         }
     }
 }

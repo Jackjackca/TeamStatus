@@ -44,7 +44,7 @@ public final class ClientHealthFxState {
 
     /** Updates the memory from a fresh team snapshot, already dispatched to the main thread. */
     public static void update(Collection<TeamMemberState> snapshot) {
-        long now = Minecraft.getInstance().gui.getGuiTicks();
+        long now = Minecraft.getInstance().gui.hud.getGuiTicks();
         for (TeamMemberState member : snapshot) {
             if (!member.online()) {
                 FX.remove(member.id());

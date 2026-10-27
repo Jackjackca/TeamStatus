@@ -14,7 +14,7 @@ import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 public final class TeamStatusClient {
 
     public TeamStatusClient(IEventBus modEventBus, ModContainer container) {
-        // Register the custom HUD layer (RegisterGuiLayersEvent, GuiGraphics based rendering).
+        // Register the custom HUD layer (RegisterGuiLayersEvent, GuiGraphicsExtractor based rendering).
         modEventBus.addListener(TeamHudRenderer::register);
 
         // Mods screen -> config screen for the CLIENT config.

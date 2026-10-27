@@ -1,18 +1,20 @@
 package com.jackjackca.teamstatus.server;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
-import net.minecraft.nbt.Tag;
+import com.mojang.serialization.Codec;
+
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.level.saveddata.SavedDataType;
 
 /**
  * World-persisted, per-player display configuration.
@@ -24,23 +26,30 @@ import net.minecraft.world.level.saveddata.SavedData;
  * <p>
  * Stored on the overworld's {@code DimensionDataStorage}, which persists with the world save
  * on both dedicated servers and singleplayer. Server main thread only.
+ * <p>
+ * Since 1.21.5 {@link SavedData} is persisted through a {@link SavedDataType} with a
+ * {@link Codec} instead of the old NBT hook methods. The on-disk shape is unchanged (a
+ * "viewers" compound mapping viewer UUID strings to lists of target UUID strings), so saves
+ * written by older mod versions keep loading.
  */
 public final class DisplayListStore extends SavedData {
 
     private static final String DATA_NAME = "teamstatus_display_lists";
-    private static final String TAG_VERSION = "version";
     private static final String TAG_VIEWERS = "viewers";
-    private static final int FORMAT_VERSION = 1;
 
     /** viewer UUID -> set of hidden target UUIDs. */
-    private final Map<UUID, Set<UUID>> hiddenByViewer = new java.util.HashMap<>();
+    private final Map<UUID, Set<UUID>> hiddenByViewer = new HashMap<>();
 
-    public static DisplayListStore get(MinecraftServer server) {
-        return server.overworld().getDataStorage().computeIfAbsent(
-                new SavedData.Factory<>(DisplayListStore::new, DisplayListStore::load, null), DATA_NAME);
-    }
+    public static final SavedDataType<DisplayListStore> TYPE = new SavedDataType<>(
+            Identifier.withDefaultNamespace(DATA_NAME),
+            DisplayListStore::new,
+            RawData.CODEC.xmap(DisplayListStore::fromRaw, DisplayListStore::toRaw));
 
     private DisplayListStore() {
+    }
+
+    public static DisplayListStore get(MinecraftServer server) {
+        return server.overworld().getDataStorage().computeIfAbsent(TYPE);
     }
 
     /** Whether {@code viewer} currently sees {@code target}. */
@@ -98,36 +107,19 @@ public final class DisplayListStore extends SavedData {
         return false;
     }
 
-    @Override
-    public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.putInt(TAG_VERSION, FORMAT_VERSION);
-        CompoundTag viewers = new CompoundTag();
-        for (Map.Entry<UUID, Set<UUID>> entry : hiddenByViewer.entrySet()) {
-            ListTag list = new ListTag();
-            for (UUID target : entry.getValue()) {
-                list.add(StringTag.valueOf(target.toString()));
-            }
-            viewers.put(entry.getKey().toString(), list);
-        }
-        tag.put(TAG_VIEWERS, viewers);
-        return tag;
-    }
-
-    private static DisplayListStore load(CompoundTag tag, HolderLookup.Provider registries) {
+    private static DisplayListStore fromRaw(RawData raw) {
         DisplayListStore store = new DisplayListStore();
-        CompoundTag viewers = tag.getCompound(TAG_VIEWERS);
-        for (String viewerKey : viewers.getAllKeys()) {
+        for (Map.Entry<String, List<String>> entry : raw.viewers().entrySet()) {
             UUID viewer;
             try {
-                viewer = UUID.fromString(viewerKey);
+                viewer = UUID.fromString(entry.getKey());
             } catch (IllegalArgumentException e) {
                 continue;
             }
             Set<UUID> hidden = new HashSet<>();
-            ListTag list = viewers.getList(viewerKey, Tag.TAG_STRING);
-            for (int i = 0; i < list.size(); i++) {
+            for (String target : entry.getValue()) {
                 try {
-                    hidden.add(UUID.fromString(list.getString(i)));
+                    hidden.add(UUID.fromString(target));
                 } catch (IllegalArgumentException ignored) {
                     // Skip malformed entries rather than failing the whole store load.
                 }
@@ -137,5 +129,26 @@ public final class DisplayListStore extends SavedData {
             }
         }
         return store;
+    }
+
+    private RawData toRaw() {
+        Map<String, List<String>> raw = new HashMap<>();
+        for (Map.Entry<UUID, Set<UUID>> entry : hiddenByViewer.entrySet()) {
+            List<String> targets = new ArrayList<>(entry.getValue().size());
+            for (UUID target : entry.getValue()) {
+                targets.add(target.toString());
+            }
+            raw.put(entry.getKey().toString(), targets);
+        }
+        return new RawData(raw);
+    }
+
+    /** Wire shape: {@code {"viewers": {"<viewer-uuid>": ["<target-uuid>", ...]}}}. */
+    private record RawData(Map<String, List<String>> viewers) {
+
+        static final Codec<RawData> CODEC = Codec.unboundedMap(Codec.STRING, Codec.STRING.listOf())
+                .fieldOf(TAG_VIEWERS)
+                .codec()
+                .xmap(RawData::new, RawData::viewers);
     }
 }

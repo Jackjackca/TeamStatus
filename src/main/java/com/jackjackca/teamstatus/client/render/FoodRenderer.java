@@ -4,8 +4,9 @@ import java.util.List;
 
 import com.jackjackca.teamstatus.client.integration.AppleSkinIntegration;
 
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.resources.Identifier;
 
 /**
  * Pure paint layer for the hunger row. The upstream visual layer resolves each of the 10
@@ -39,7 +40,7 @@ public final class FoodRenderer {
     public record Drumstick(boolean rotten, Fill fill, int saturationLevel, int offsetY) {
     }
 
-    private static final ResourceLocation[][] SPRITES = {
+    private static final Identifier[][] SPRITES = {
             // empty, half, full — normal and rotten (hunger effect)
             {sprite("hud/food_empty"), sprite("hud/food_half"), sprite("hud/food_full")},
             {sprite("hud/food_empty_hunger"), sprite("hud/food_half_hunger"), sprite("hud/food_full_hunger")}
@@ -48,11 +49,11 @@ public final class FoodRenderer {
     private FoodRenderer() {
     }
 
-    private static ResourceLocation sprite(String path) {
-        return ResourceLocation.withDefaultNamespace(path);
+    private static Identifier sprite(String path) {
+        return Identifier.withDefaultNamespace(path);
     }
 
-    public static void draw(GuiGraphics gui, int x, int y, List<Drumstick> drumsticks, int exhaustionWidth) {
+    public static void draw(GuiGraphicsExtractor gui, int x, int y, List<Drumstick> drumsticks, int exhaustionWidth) {
         // Layer contract, mirrors AppleSkin's registerBelow/registerAbove(FOOD_LEVEL):
         // exhaustion underlay (bottom) -> drumsticks -> saturation overlay (top).
         AppleSkinIntegration.paintExhaustion(gui, x + ROW_WIDTH, y, exhaustionWidth);
@@ -63,10 +64,12 @@ public final class FoodRenderer {
             int iconX = x + ROW_WIDTH - ICON_SIZE - i * ICON_STEP;
             int iconY = y + drumstick.offsetY();
 
-            gui.blitSprite(SPRITES[drumstick.rotten() ? 1 : 0][Fill.EMPTY.ordinal()],
+            gui.blitSprite(RenderPipelines.GUI_TEXTURED,
+                    SPRITES[drumstick.rotten() ? 1 : 0][Fill.EMPTY.ordinal()],
                     iconX, iconY, ICON_SIZE, ICON_SIZE);
             if (drumstick.fill() != Fill.EMPTY) {
-                gui.blitSprite(SPRITES[drumstick.rotten() ? 1 : 0][drumstick.fill().ordinal()],
+                gui.blitSprite(RenderPipelines.GUI_TEXTURED,
+                        SPRITES[drumstick.rotten() ? 1 : 0][drumstick.fill().ordinal()],
                         iconX, iconY, ICON_SIZE, ICON_SIZE);
             }
 

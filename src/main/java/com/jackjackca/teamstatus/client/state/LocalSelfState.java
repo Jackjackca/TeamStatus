@@ -39,7 +39,7 @@ public final class LocalSelfState {
         HungerState hunger = new HungerState(
                 player.getFoodData().getFoodLevel(),
                 player.getFoodData().getSaturationLevel(),
-                player.getFoodData().getExhaustionLevel());
+                player.getFoodData().exhaustionLevel);
         VitalsState vitals = new VitalsState(
                 player.getHealth(),
                 player.getMaxHealth(),
@@ -55,7 +55,7 @@ public final class LocalSelfState {
         EquipmentState equipment = new EquipmentState(ItemState.of(player.getMainHandItem()));
 
         TeamMemberState self = TeamMemberState.online(player.getUUID(),
-                player.getGameProfile().getName(), !player.isDeadOrDying(), vitals, effects, equipment);
+                player.getGameProfile().name(), !player.isDeadOrDying(), vitals, effects, equipment);
         ClientTeamState.setLocalSelf(self);
         // Keep the self damage/heal flash memory in sync with the authoritative local health.
         ClientHealthFxState.update(List.of(self));

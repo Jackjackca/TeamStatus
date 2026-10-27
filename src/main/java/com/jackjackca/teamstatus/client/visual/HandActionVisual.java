@@ -11,9 +11,9 @@ import com.jackjackca.teamstatus.client.render.HandItemRenderer;
 import com.jackjackca.teamstatus.client.render.HitIconRenderer;
 import com.jackjackca.teamstatus.common.state.EffectState;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.effect.MobEffects;
 
 /**
@@ -32,10 +32,10 @@ public final class HandActionVisual {
     public static final int TARGET_X = 100;
     public static final int TARGET_SIZE = 14;
 
-    private static final ResourceLocation HASTE_ID =
-            BuiltInRegistries.MOB_EFFECT.getKey(MobEffects.DIG_SPEED.value());
-    private static final ResourceLocation FATIGUE_ID =
-            BuiltInRegistries.MOB_EFFECT.getKey(MobEffects.DIG_SLOWDOWN.value());
+    private static final Identifier HASTE_ID =
+            BuiltInRegistries.MOB_EFFECT.getKey(MobEffects.HASTE.value());
+    private static final Identifier FATIGUE_ID =
+            BuiltInRegistries.MOB_EFFECT.getKey(MobEffects.MINING_FATIGUE.value());
 
     private HandActionVisual() {
     }
@@ -45,7 +45,7 @@ public final class HandActionVisual {
      * @param centerY vertical center line shared with the avatar (midpoint of health, food
      *                and armor rows)
      */
-    public static void render(GuiGraphics gui, MemberVisualContext context, int originX,
+    public static void render(GuiGraphicsExtractor gui, MemberVisualContext context, int originX,
                               float centerY) {
         View view = HandActionStates.getView(context.member().id(), context.partialTick(),
                 swingDurationTicks(context));

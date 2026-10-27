@@ -12,7 +12,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
@@ -106,7 +106,7 @@ public final class LocalActionFeed {
             AttackActionPacket packet;
             if (victim instanceof Player playerVictim) {
                 packet = new AttackActionPacket(player.getUUID(), AttackActionPacket.TargetKind.PLAYER,
-                        playerVictim.getUUID(), playerVictim.getGameProfile().getName(), null);
+                        playerVictim.getUUID(), playerVictim.getGameProfile().name(), null);
             } else {
                 packet = new AttackActionPacket(player.getUUID(), AttackActionPacket.TargetKind.MOB,
                         null, null, BuiltInRegistries.ENTITY_TYPE.getKey(victim.getType()));
@@ -163,7 +163,7 @@ public final class LocalActionFeed {
     }
 
     private static boolean isConsumable(ItemStack stack) {
-        UseAnim anim = stack.getUseAnimation();
-        return anim == UseAnim.EAT || anim == UseAnim.DRINK;
+        ItemUseAnimation anim = stack.getUseAnimation();
+        return anim == ItemUseAnimation.EAT || anim == ItemUseAnimation.DRINK;
     }
 }

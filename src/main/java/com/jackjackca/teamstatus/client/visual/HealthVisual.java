@@ -8,10 +8,10 @@ import com.jackjackca.teamstatus.client.render.HealthRenderer.HeartSlot;
 import com.jackjackca.teamstatus.client.state.ClientHealthFxState;
 import com.jackjackca.teamstatus.common.state.TeamMemberState;
 
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.Hud;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffects;
@@ -29,11 +29,11 @@ import net.minecraft.world.effect.MobEffects;
  */
 public final class HealthVisual {
 
-    private static final ResourceLocation POISON_ID =
+    private static final Identifier POISON_ID =
             BuiltInRegistries.MOB_EFFECT.getKey(MobEffects.POISON.value());
-    private static final ResourceLocation WITHER_ID =
+    private static final Identifier WITHER_ID =
             BuiltInRegistries.MOB_EFFECT.getKey(MobEffects.WITHER.value());
-    private static final ResourceLocation REGENERATION_ID =
+    private static final Identifier REGENERATION_ID =
             BuiltInRegistries.MOB_EFFECT.getKey(MobEffects.REGENERATION.value());
 
     private static final int LOW_HEALTH_THRESHOLD = 4;
@@ -59,9 +59,9 @@ public final class HealthVisual {
         int displayHealth = ClientHealthFxState.displayHealth(member.id(), healthPoints);
         boolean blinking = ClientHealthFxState.isBlinking(member.id(), guiTicks);
 
-        Gui.HeartType paint = styleFor(member);
-        Gui.HeartType absorptionPaint =
-                paint == Gui.HeartType.WITHERED ? Gui.HeartType.WITHERED : Gui.HeartType.ABSORBING;
+        Hud.HeartType paint = styleFor(member);
+        Hud.HeartType absorptionPaint =
+                paint == Hud.HeartType.WITHERED ? Hud.HeartType.WITHERED : Hud.HeartType.ABSORBING;
 
         boolean shaking = healthPoints + absorptionPoints <= LOW_HEALTH_THRESHOLD;
         int pulseSlot = regenerationPulseSlot(member, guiTicks, displayHealth, healthPoints);
@@ -85,14 +85,14 @@ public final class HealthVisual {
 
             int pointsIndex = slot * 2;
 
-            Gui.HeartType blinkFill = null;
+            Hud.HeartType blinkFill = null;
             boolean blinkHalf = false;
             if (blinking && pointsIndex < displayHealth) {
                 blinkFill = paint;
                 blinkHalf = pointsIndex + 1 == displayHealth;
             }
 
-            Gui.HeartType fill = null;
+            Hud.HeartType fill = null;
             boolean fillHalf = false;
             if (pointsIndex < healthPoints) {
                 fill = paint;
@@ -119,7 +119,7 @@ public final class HealthVisual {
         return new HeartLayout(List.copyOf(blood), List.copyOf(absorption));
     }
 
-    public static void render(GuiGraphics gui, int x, int y, HeartLayout layout) {
+    public static void render(GuiGraphicsExtractor gui, int x, int y, HeartLayout layout) {
         HealthRenderer.draw(gui, x, y, layout.blood(), layout.absorption());
     }
 
@@ -128,19 +128,19 @@ public final class HealthVisual {
     }
 
     /** Mirrors {@code Gui.HeartType.forPlayer}: poison, then wither, then frozen, else normal. */
-    private static Gui.HeartType styleFor(TeamMemberState member) {
+    private static Hud.HeartType styleFor(TeamMemberState member) {
         boolean poisoned = member.effects().stream().anyMatch(e -> e.effectId().equals(POISON_ID));
         boolean withered = member.effects().stream().anyMatch(e -> e.effectId().equals(WITHER_ID));
         if (poisoned) {
-            return Gui.HeartType.POISIONED;
+            return Hud.HeartType.POISIONED;
         }
         if (withered) {
-            return Gui.HeartType.WITHERED;
+            return Hud.HeartType.WITHERED;
         }
         if (member.vitals().frozen()) {
-            return Gui.HeartType.FROZEN;
+            return Hud.HeartType.FROZEN;
         }
-        return Gui.HeartType.NORMAL;
+        return Hud.HeartType.NORMAL;
     }
 
     /**

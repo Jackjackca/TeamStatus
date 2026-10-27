@@ -17,10 +17,10 @@ import com.jackjackca.teamstatus.common.state.TeamMemberState;
 
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.LayeredDraw;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
+import net.neoforged.neoforge.client.gui.GuiLayer;
 
 /**
  * The single registered HUD layer (via {@link RegisterGuiLayersEvent}).
@@ -32,10 +32,10 @@ import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
  * dimensions and the stack never drifts toward the top-left; if the stack is taller than
  * the space above the anchor, its top is clipped rather than the bottom overflowing.
  */
-public final class TeamHudRenderer implements LayeredDraw.Layer {
+public final class TeamHudRenderer implements GuiLayer {
 
-    public static final ResourceLocation LAYER_ID =
-            ResourceLocation.fromNamespaceAndPath(TeamStatus.MODID, "team_status");
+    public static final Identifier LAYER_ID =
+            Identifier.fromNamespaceAndPath(TeamStatus.MODID, "team_status");
 
     private static final TeamHudRenderer INSTANCE = new TeamHudRenderer();
 
@@ -51,9 +51,9 @@ public final class TeamHudRenderer implements LayeredDraw.Layer {
     }
 
     @Override
-    public void render(@Nonnull GuiGraphics gui, @Nonnull DeltaTracker deltaTracker) {
+    public void render(@Nonnull GuiGraphicsExtractor gui, @Nonnull DeltaTracker deltaTracker) {
         Minecraft minecraft = Minecraft.getInstance();
-        if (!Config.HUD_ENABLED.get() || minecraft.options.hideGui || minecraft.player == null) {
+        if (!Config.HUD_ENABLED.get() || minecraft.gui.hud.isHidden() || minecraft.player == null) {
             return;
         }
         var members = ClientTeamState.getMembers();
@@ -65,7 +65,7 @@ public final class TeamHudRenderer implements LayeredDraw.Layer {
 
         float partialTick = deltaTracker.getGameTimeDeltaPartialTick(true);
         UUID selfId = minecraft.player.getUUID();
-        int guiTicks = minecraft.gui.getGuiTicks();
+        int guiTicks = minecraft.gui.hud.getGuiTicks();
         boolean hardcore = minecraft.level != null && minecraft.level.getLevelData().isHardcore();
 
         List<TeamMemberState> ordered = orderedMembers(members, selfId);
@@ -94,11 +94,11 @@ public final class TeamHudRenderer implements LayeredDraw.Layer {
         float originY = (inset + anchorYPct * (screenH - 2 * inset)) * invScale;
 
         var pose = gui.pose();
-        pose.pushPose();
+        pose.pushMatrix();
         // Scale FIRST, then translate, otherwise the scale multiplies the translation and
         // pushes the stack toward the top-left corner.
-        pose.scale(scale, scale, 1.0F);
-        pose.translate(originX, originY, 0.0F);
+        pose.scale(scale, scale);
+        pose.translate(originX, originY);
 
         // Single bottom-up pass: self (locally synthesized, pinned at the bottom) first, then
         // teammates. Each topY depends only on the previous panel's measured height.
@@ -118,7 +118,7 @@ public final class TeamHudRenderer implements LayeredDraw.Layer {
             cursorY = topY - gap;
         }
 
-        pose.popPose();
+        pose.popMatrix();
     }
 
     /**

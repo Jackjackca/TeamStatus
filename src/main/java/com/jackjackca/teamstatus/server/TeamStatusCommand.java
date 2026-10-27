@@ -54,7 +54,7 @@ public final class TeamStatusCommand {
             ctx.getSource().sendFailure(Component.literal("You cannot hide yourself."));
             return 0;
         }
-        DisplayListStore.get(self.server).hide(self.getUUID(),
+        DisplayListStore.get(self.level().getServer()).hide(self.getUUID(),
                 targets.stream().map(ServerPlayer::getUUID).toList());
         collector.markDisplayListsChanged();
         ctx.getSource().sendSuccess(() -> Component.literal("Hidden " + namesOf(targets)
@@ -66,7 +66,7 @@ public final class TeamStatusCommand {
             throws com.mojang.brigadier.exceptions.CommandSyntaxException {
         ServerPlayer self = ctx.getSource().getPlayerOrException();
         List<ServerPlayer> targets = EntityArgument.getPlayers(ctx, ARG_TARGETS).stream().toList();
-        boolean changed = DisplayListStore.get(self.server).show(self.getUUID(),
+        boolean changed = DisplayListStore.get(self.level().getServer()).show(self.getUUID(),
                 targets.stream().map(ServerPlayer::getUUID).toList());
         if (changed) {
             collector.markDisplayListsChanged();
@@ -79,7 +79,7 @@ public final class TeamStatusCommand {
     private static int showAll(CommandContext<CommandSourceStack> ctx, TeamStateCollector collector)
             throws com.mojang.brigadier.exceptions.CommandSyntaxException {
         ServerPlayer self = ctx.getSource().getPlayerOrException();
-        boolean changed = DisplayListStore.get(self.server).showAll(self.getUUID());
+        boolean changed = DisplayListStore.get(self.level().getServer()).showAll(self.getUUID());
         if (changed) {
             collector.markDisplayListsChanged();
         }
@@ -90,15 +90,15 @@ public final class TeamStatusCommand {
     private static int list(CommandContext<CommandSourceStack> ctx)
             throws com.mojang.brigadier.exceptions.CommandSyntaxException {
         ServerPlayer self = ctx.getSource().getPlayerOrException();
-        java.util.Set<UUID> hidden = DisplayListStore.get(self.server).getHidden(self.getUUID());
+        java.util.Set<UUID> hidden = DisplayListStore.get(self.level().getServer()).getHidden(self.getUUID());
         if (hidden.isEmpty()) {
             ctx.getSource().sendSuccess(() -> Component.literal("You are seeing every online player."), false);
             return 0;
         }
         List<String> names = hidden.stream()
                 .map(id -> {
-                    ServerPlayer online = self.server.getPlayerList().getPlayer(id);
-                    return online != null ? online.getGameProfile().getName() : id.toString();
+                    ServerPlayer online = self.level().getServer().getPlayerList().getPlayer(id);
+                    return online != null ? online.getGameProfile().name() : id.toString();
                 })
                 .sorted()
                 .toList();
@@ -107,7 +107,7 @@ public final class TeamStatusCommand {
     }
 
     private static String namesOf(List<ServerPlayer> players) {
-        return players.stream().map(p -> p.getGameProfile().getName())
+        return players.stream().map(p -> p.getGameProfile().name())
                 .sorted().reduce((a, b) -> a + ", " + b).orElse("");
     }
 }

@@ -6,7 +6,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 
@@ -16,11 +16,11 @@ import net.minecraft.world.effect.MobEffectInstance;
  * Per the architecture constraints the localized effect name is never transmitted; only the
  * {@link MobEffect} registry id together with duration/amplifier is sent over the wire.
  */
-public record EffectState(ResourceLocation effectId, int duration, int amplifier, boolean ambient,
+public record EffectState(Identifier effectId, int duration, int amplifier, boolean ambient,
                          boolean showIcon) {
 
     public static final StreamCodec<RegistryFriendlyByteBuf, EffectState> STREAM_CODEC = StreamCodec.composite(
-            ResourceLocation.STREAM_CODEC, EffectState::effectId,
+            Identifier.STREAM_CODEC, EffectState::effectId,
             ByteBufCodecs.VAR_INT, EffectState::duration,
             ByteBufCodecs.VAR_INT, EffectState::amplifier,
             ByteBufCodecs.BOOL, EffectState::ambient,
@@ -32,7 +32,7 @@ public record EffectState(ResourceLocation effectId, int duration, int amplifier
             Comparator.comparing(EffectState::effectId).thenComparingInt(EffectState::amplifier);
 
     public static EffectState of(MobEffectInstance instance) {
-        ResourceLocation id = BuiltInRegistries.MOB_EFFECT.getKey(instance.getEffect().value());
+        Identifier id = BuiltInRegistries.MOB_EFFECT.getKey(instance.getEffect().value());
         // The HUD shows whole seconds, so floor the duration to a 20-tick boundary; this keeps
         // snapshots equal while the on-screen countdown is unchanged and cuts effect traffic
         // from 4 Hz polling to at most 1 Hz per active effect. Infinite (-1) is preserved.

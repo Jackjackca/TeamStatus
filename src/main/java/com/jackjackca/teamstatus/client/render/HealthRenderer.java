@@ -2,9 +2,10 @@ package com.jackjackca.teamstatus.client.render;
 
 import java.util.List;
 
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.Hud;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.resources.Identifier;
 
 /**
  * Pure paint layer for hearts. It knows nothing about effects, freezing or health numbers:
@@ -43,8 +44,8 @@ public final class HealthRenderer {
      * @param offsetY      dynamic per-heart vertical offset supplied by the visual layer
      *                     (low-health shake, regeneration pulse); this class never computes it
      */
-    public record HeartSlot(Gui.HeartType fill, boolean fillHalf,
-                            Gui.HeartType blinkFill, boolean blinkHalf,
+    public record HeartSlot(Hud.HeartType fill, boolean fillHalf,
+                            Hud.HeartType blinkFill, boolean blinkHalf,
                             boolean containerBlink, boolean hardcore, int offsetY) {
 
         /** Empty container with no fills. */
@@ -70,14 +71,14 @@ public final class HealthRenderer {
      * Draws absorption hearts first (top rows) and blood hearts below them, each group
      * restarting at column 0 and wrapping every {@link #HEARTS_PER_ROW} hearts.
      */
-    public static void draw(GuiGraphics gui, int x, int y,
+    public static void draw(GuiGraphicsExtractor gui, int x, int y,
                             List<HeartSlot> blood, List<HeartSlot> absorption) {
         int absorptionRows = (int) Math.ceil(absorption.size() / (double) HEARTS_PER_ROW);
         drawGroup(gui, x, y, absorption);
         drawGroup(gui, x, y + absorptionRows * ROW_STEP, blood);
     }
 
-    private static void drawGroup(GuiGraphics gui, int x, int groupTopY, List<HeartSlot> slots) {
+    private static void drawGroup(GuiGraphicsExtractor gui, int x, int groupTopY, List<HeartSlot> slots) {
         for (int i = 0; i < slots.size(); i++) {
             HeartSlot slot = slots.get(i);
             int row = i / HEARTS_PER_ROW;
@@ -85,20 +86,23 @@ public final class HealthRenderer {
             int iconX = x + column * SPRITE_STEP;
             int iconY = groupTopY + row * ROW_STEP + slot.offsetY();
 
-            ResourceLocation container =
-                    Gui.HeartType.CONTAINER.getSprite(slot.hardcore(), false, slot.containerBlink());
-            gui.blitSprite(container, iconX, iconY, SPRITE_SIZE, SPRITE_SIZE);
+            Identifier container =
+                    Hud.HeartType.CONTAINER.getSprite(slot.hardcore(), false, slot.containerBlink());
+            gui.blitSprite(RenderPipelines.GUI_TEXTURED, container, iconX, iconY,
+                    SPRITE_SIZE, SPRITE_SIZE);
 
             if (slot.blinkFill() != null) {
-                ResourceLocation blinkSprite =
+                Identifier blinkSprite =
                         slot.blinkFill().getSprite(slot.hardcore(), slot.blinkHalf(), true);
-                gui.blitSprite(blinkSprite, iconX, iconY, SPRITE_SIZE, SPRITE_SIZE);
+                gui.blitSprite(RenderPipelines.GUI_TEXTURED, blinkSprite, iconX, iconY,
+                        SPRITE_SIZE, SPRITE_SIZE);
             }
 
             if (slot.fill() != null) {
-                ResourceLocation sprite =
+                Identifier sprite =
                         slot.fill().getSprite(slot.hardcore(), slot.fillHalf(), false);
-                gui.blitSprite(sprite, iconX, iconY, SPRITE_SIZE, SPRITE_SIZE);
+                gui.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, iconX, iconY,
+                        SPRITE_SIZE, SPRITE_SIZE);
             }
         }
     }
