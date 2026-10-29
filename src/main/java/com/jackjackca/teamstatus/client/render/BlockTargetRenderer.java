@@ -25,6 +25,13 @@ public final class BlockTargetRenderer {
     /** On-screen size of the cube in scaled GUI pixels. */
     public static final float SIZE = 14.0F;
 
+    /**
+     * Extra margin around the 14 px slot in scaled GUI pixels. The isometric projection of a
+     * 14 px cube spans about 20 px horizontally and 22 px vertically, so the PIP texture must
+     * be padded to this size or the render bounds clip the silhouette like a smaller mask.
+     */
+    public static final int PADDING = 4;
+
     private BlockTargetRenderer() {
     }
 
@@ -34,9 +41,9 @@ public final class BlockTargetRenderer {
      * @param crackStage 0..9 vanilla destroy stage; negative renders no crack overlay
      */
     public static void draw(GuiGraphicsExtractor gui, BlockState state, float centerX, float centerY, int crackStage) {
-        int x = Math.round(centerX - SIZE / 2.0F);
-        int y = Math.round(centerY - SIZE / 2.0F);
-        int size = Math.round(SIZE);
+        int x = Math.round(centerX - SIZE / 2.0F) - PADDING;
+        int y = Math.round(centerY - SIZE / 2.0F) - PADDING;
+        int size = Math.round(SIZE) + PADDING * 2;
         ScreenRectangle bounds = new ScreenRectangle(x, y, size, size)
                 .transformAxisAligned(gui.pose());
         gui.submitPictureInPictureRenderState(new BlockInGuiState(
